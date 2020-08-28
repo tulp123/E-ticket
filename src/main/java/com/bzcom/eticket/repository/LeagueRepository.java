@@ -1,6 +1,6 @@
-package com.bzcom.eticket.Repository;
+package com.bzcom.eticket.repository;
 
-import com.bzcom.eticket.Model.League;
+import com.bzcom.eticket.model.League;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
