@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -40,6 +38,14 @@ public class User {
     @Column(name = "phone_num")
     private String phoneNumber;
 
+    @Column(name = "id_card")
+    private String idCard;
+
+    @JsonBackReference(value = "organization-user")
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
+
     @Column(name = "created_date", updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime createdDate;
@@ -48,6 +54,11 @@ public class User {
     @ToString.Exclude
     @OneToMany(mappedBy = "user")
     private List<Member> members;
+
+    @JsonManagedReference(value = "ticket-user")
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user")
+    private List<Ticket> tickets;
 
     @PrePersist
     public void setBookingDate() {

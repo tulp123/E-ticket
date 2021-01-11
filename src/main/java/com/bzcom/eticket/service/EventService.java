@@ -14,4 +14,6 @@ public interface EventService {
     Event findById(int id);
 
     Event save(Event event);
+
+    List<Event> findEventsByTeamId(int id);
 }

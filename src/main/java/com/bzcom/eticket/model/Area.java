@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "area")
@@ -33,9 +33,6 @@ public class Area {
     @Column(name = "total_seat")
     private int totalSeat;
 
-    @Column(name = "area_price")
-    private long price;
-
     @JsonManagedReference(value = "seat-area")
     @ToString.Exclude
     @OneToMany(mappedBy = "area")
@@ -46,33 +43,34 @@ public class Area {
     @OneToMany(mappedBy = "area")
     private List<Gate> gates;
 
-    @Transient
-    private int locationId;
+    @JsonManagedReference(value = "pk_area_price")
+    @ToString.Exclude
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "area")
+    private Collection<AreaPrice> areaPrices = new ArrayList<>();
 
-    @Transient
-    private String locationName;
-
-    public int getLocationId() {
-        if (getLocation() == null) {
-            return locationId;
-        } else {
-            return location.getId();
-        }
+    public Area(int id) {
+        super();
+        this.id = id;
     }
 
-    public void setLocationId(int locationId) {
-        this.locationId = locationId;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Area)) return false;
+        Area area = (Area) o;
+        return getId() == area.getId() &&
+                getTotalSeat() == area.getTotalSeat() &&
+                Objects.equals(getLocation(), area.getLocation()) &&
+                Objects.equals(getName(), area.getName()) &&
+                Objects.equals(getSeats(), area.getSeats()) &&
+                Objects.equals(getGates(), area.getGates()) &&
+                Objects.equals(getAreaPrices(), area.getAreaPrices());
     }
 
-    public String getLocationName() {
-        if (getLocation() == null) {
-            return locationName;
-        } else {
-            return location.getName();
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getLocation(), getName(), getTotalSeat(), getSeats(), getGates(), getAreaPrices());
     }
 
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
-    }
+
 }

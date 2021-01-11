@@ -1,15 +1,20 @@
 package com.bzcom.eticket.service;
 
 import com.bzcom.eticket.dao.TicketDao;
+import com.bzcom.eticket.dto.AreaBookingDTO;
+import com.bzcom.eticket.dto.BookingTicketDTO;
+import com.bzcom.eticket.model.AreaPrice;
 import com.bzcom.eticket.model.Event;
 import com.bzcom.eticket.model.Seat;
 import com.bzcom.eticket.model.Ticket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketServiceImpl implements TicketService {
@@ -34,46 +39,36 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    public List<Ticket> findAllByIds(List<Integer> ids) {
+        return ticketDao.findAllByIds(ids);
+    }
+
+    @Override
     public Ticket save(Ticket ticket) {
         return ticketDao.save(ticket);
     }
 
     @Override
-    public List<Ticket> saveAll(Ticket ticket) {
-        List<Ticket> ticketList = new ArrayList<>();
+    @Transactional
+    public List<Ticket> saveAll(BookingTicketDTO bookingTicketDTO) {
+        List<Ticket> ticketList = bookingTicketDTO.getTickets();
+        List<Integer> ids = ticketList.stream().map(Ticket::getId).collect(Collectors.toList());
+        ticketList = this.findAllByIds(ids);
 
-        for (int i = 1; i <= ticket.getTotalTicket(); i++) {
-            Ticket eticket = new Ticket();
+        Event eventTicket = ticketList.get(0).getEvent();
 
-            eticket.setSeat(ticket.getSeat());
-            eticket.setIssueDate(ticket.getIssueDate());
-            eticket.setPaymentMethod(ticket.getPaymentMethod());
-//            eticket.setQrCode(ticket.getQrCode());
-            eticket.setTicketStatus(ticket.isTicketStatus());
-            eticket.setEventId(ticket.getEventId());
-            eticket.setUserId(ticket.getUserId());
+        // auto generate booking code
+        String bookingCode = "";
+        do {
+            bookingCode = this.randomBookingCode();
+        } while (this.findByBookingCode(bookingCode, eventTicket).size() > 0);
 
-            Event eventTicket = eventService.findById(eticket.getEventId());
-            Seat seatTicket = seatService.findById(eticket.getSeat().getId());
-            eticket.setEvent(eventTicket);
-            eticket.setSeat(seatTicket);
-
-            // auto generate booking code
-            String bookingCode = this.randomBookingCode();
-            eticket.setBookingCode(bookingCode);
-
-            String maxSerial = this.getMaxSerial(eventTicket.getId());
-            String serial = "";
-
-            // auto increment ticket serial
-            if (maxSerial == null){
-                serial = this.autoGenerateSerial(eventTicket);
-            } else {
-                serial = String.valueOf(Long.parseLong(maxSerial) + i);
-            }
-            eticket.setTicketSerial(serial);
-
-            ticketList.add(eticket);
+        for (Ticket eTicket : ticketList) {
+            eTicket.setUser(bookingTicketDTO.getUser());
+            eTicket.setIssueDate(new Date());
+            eTicket.setBookingCode(bookingCode);
+            eTicket.setTicketStatus(false);
+            eTicket.setBookingStatus(2);
         }
 
         return ticketDao.saveAll(ticketList);
@@ -82,13 +77,14 @@ public class TicketServiceImpl implements TicketService {
     private String autoGenerateSerial(Event eventTicket) {
         StringBuilder sb = new StringBuilder();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMM");
-        sb.append(sdf.format(eventTicket.getGame().getMatchTime()));
+        String serial = String.valueOf(System.currentTimeMillis()).concat(String.valueOf(eventTicket.getId())).concat("001");
 
-        String eventId = String.format("%4s", eventTicket.getId()).replace(' ','0');
-        sb.append(eventId);
+        int timeLength = serial.length();
+        sb.append(serial.substring(timeLength - 12, timeLength));
 
-        sb.append("0001");
+//        String eventId = String.format("%4s", eventTicket.getId()).replace(' ', '0');
+//        sb.append(eventId);
+
         return sb.toString();
     }
 
@@ -96,7 +92,7 @@ public class TicketServiceImpl implements TicketService {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvxyz0123456789";
         int bookingCodeChar = 8;
         StringBuilder sb = new StringBuilder(bookingCodeChar);
-        for(int i=0; i < bookingCodeChar; i++ ) {
+        for (int i = 0; i < bookingCodeChar; i++) {
             int index = (int) (chars.length() * Math.random());
             sb.append(chars.charAt(index));
         }
@@ -104,17 +100,49 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Ticket findByBookingCode(String bookingCode, Event event) {
+    public List<Ticket> createTicket(Event event, AreaPrice areaPrice, String serial) {
+        List<Ticket> ticketList = new ArrayList<>();
+        Integer minSeatId = seatService.getSeatIdMin(areaPrice.getId().getAreaId());
+
+        for (int i = 0; i < areaPrice.getAreaTotalTicket(); i++) {
+            Ticket ticket = new Ticket();
+            ticket.setEvent(event);
+            ticket.setTicketSerial(String.valueOf(Long.parseLong(serial) + i));
+            ticket.setSeat(new Seat(minSeatId + i));
+            ticket.setTicketStatus(false);
+            ticketList.add(ticket);
+        }
+
+        return ticketDao.saveAll(ticketList);
+    }
+
+    @Override
+    public List<Ticket> findByBookingCode(String bookingCode, Event event) {
         return ticketDao.findByBookingCode(bookingCode, event);
     }
 
     @Override
-    public Ticket findByTicketSerial(String ticketSerial, Event event) {
-        return ticketDao.findByTicketSerial(ticketSerial, event);
+    public Ticket findByTicketSerial(String ticketSerial) {
+        return ticketDao.findByTicketSerial(ticketSerial);
     }
 
     @Override
     public String getMaxSerial(int eventId) {
         return ticketDao.getMaxSerial(eventId);
+    }
+
+    @Override
+    public List<Ticket> findTicketByBookingCodeAndUser_EmailAndUser_Phone(String bookingCode, String email, String phoneNumber) {
+        return ticketDao.findTicketByBookingCodeAndUser_EmailAndUser_Phone(bookingCode , email , phoneNumber);
+    }
+
+    @Override
+    public List<Ticket> getListTicketAvailable(int eventId, int areaId, int numberTicket) {
+        return ticketDao.getListTicketAvailable(eventId, areaId, numberTicket);
+    }
+
+    @Override
+    public void updateBookingStatus(int bookingStatus, List<Ticket> tickets) {
+        ticketDao.updateBookingStatus(bookingStatus, tickets);
     }
 }

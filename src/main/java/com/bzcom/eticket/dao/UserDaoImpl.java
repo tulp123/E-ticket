@@ -1,23 +1,13 @@
 package com.bzcom.eticket.dao;
 
-
-import com.bzcom.eticket.model.Role;
 import com.bzcom.eticket.model.User;
-import com.bzcom.eticket.repository.RoleRepository;
 import com.bzcom.eticket.repository.UserRepository;
-import com.sun.xml.bind.v2.util.QNameMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.query.JpaQueryMethod;
-import org.springframework.data.jpa.repository.query.JpaQueryMethodFactory;
-import org.springframework.data.projection.ProjectionFactory;
-import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.lang.reflect.Method;
 import java.util.List;
 
 @Repository
@@ -60,6 +50,14 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User findUserByPhoneNumber(String phoneNum) {
         return userRepository.findUserByPhoneNumber(phoneNum);
+    }
+
+    @Override
+    public List<User> findUserByOrganizationId(int organizationId) {
+        TypedQuery<User> q = entityManager.createQuery(
+                "select user from User user  where user.organization.id = :organizationId", User.class);
+        q.setParameter("organizationId", organizationId);
+        return q.getResultList();
     }
 
 }

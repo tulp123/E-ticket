@@ -1,73 +1,107 @@
 package com.bzcom.eticket.controller;
 
-import com.bzcom.eticket.model.Event;
-import com.bzcom.eticket.model.Game;
-import com.bzcom.eticket.model.Location;
-import com.bzcom.eticket.model.Team;
-import com.bzcom.eticket.service.EventService;
-import com.bzcom.eticket.service.LocationService;
-import com.bzcom.eticket.service.TeamService;
+import com.bzcom.eticket.dto.AreaCountTicketDTO;
+import com.bzcom.eticket.dto.MatchDTO;
+import com.bzcom.eticket.model.*;
+import com.bzcom.eticket.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping({"/events"})
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("*")
 public class EventController {
 
     @Autowired
     private EventService eventService;
 
     @Autowired
-    private LocationService locationService;
+    private AreaPriceService areaPriceService;
 
     @Autowired
-    private TeamService teamService;
+    private AreaService areaService;
 
     // Get All Event
     @GetMapping
-    public List<Event> getAllEvents(){
-        return eventService.findAll();
+    public List<MatchDTO> getAllEvents() {
+        List<Event> events = eventService.findAll();
+        List<MatchDTO> matchDTOS = new ArrayList<>();
+        for (Event event : events) {
+            MatchDTO matchDTO = new MatchDTO(event);
+            matchDTOS.add(matchDTO);
+        }
+        return matchDTOS;
     }
 
     @GetMapping("/sort-up")
-    public List<Event> getAllEventsSortUp(){
+    public List<Event> getAllEventsSortUp() {
         return eventService.findAllByMatchTimeAsc();
     }
 
     @GetMapping("/sort-down")
-    public List<Event> getAllEventsSortDown(){
+    public List<Event> getAllEventsSortDown() {
         return eventService.findAllByMatchTimeDesc();
+    }
+
+    @GetMapping("/team/{id}")
+    public List<MatchDTO> getEventByTeamId(@PathVariable int id) {
+        List<Event> events = eventService.findEventsByTeamId(id);
+        return events.stream().map(event -> new MatchDTO(event)).collect(Collectors.toList());
     }
 
     // Get a Single Event
     @GetMapping("/{id}")
-    public Event getEventById(@PathVariable(value = "id") Integer id) {
-        return eventService.findById(id);
+    public MatchDTO getEventById(@PathVariable(value = "id") Integer id) {
+        Event event = eventService.findById(id);
+        List<AreaCountTicketDTO> remainTicketDTOList = areaService.areaCountRemainTicket(id);
+        Collection<AreaPrice> areaPrices = event.getAreaPrices();
+
+        for (AreaPrice areaPrice : areaPrices) {
+            for (AreaCountTicketDTO areaCountTicketDTO : remainTicketDTOList) {
+                if (areaPrice.getId().getAreaId() == areaCountTicketDTO.getAreaId()) {
+                    areaPrice.setRemainTicket((int) areaCountTicketDTO.getTotalTicket());
+                    break;
+                }
+            }
+        }
+
+        MatchDTO matchDTO = new MatchDTO(event);
+        return matchDTO;
+    }
+
+    // Get list area price of event
+    @GetMapping("/area-price/{id}")
+    public List<AreaPrice> findByEventId(@PathVariable(value = "id") int eventId) {
+        return areaPriceService.findByEventId(eventId);
+    }
+
+    // Save event-area-price to database
+    @PostMapping("/save-price")
+    @Transactional
+    public List<AreaPrice> save(@RequestBody List<AreaPrice> areaPrices) {
+        List<AreaPrice> listSave = new ArrayList<>();
+        for (AreaPrice areaPrice : areaPrices) {
+            Area area = new Area(areaPrice.getId().getAreaId());
+            Event event = new Event(areaPrice.getId().getEventId());
+
+            areaPrice.setArea(area);
+            areaPrice.setEvent(event);
+            listSave.add(areaPrice);
+        }
+        return areaPriceService.saveAll(listSave);
     }
 
     // Create a new Event
     @PostMapping
-    public Event saveEvent(@RequestBody Location location){
-        Location loc = locationService.findById(location.getId());
-        List<Event> eventList = location.getEvents();
-        Event event = eventList.get(0);
+    public Event saveEvent(@RequestBody Event event) {
         Game game = event.getGame();
-
-        int aTeamId = game.getaTeamId();
-        int bTeamId = game.getbTeamId();
-        Team teamA = new Team();
-        Team teamB = new Team();
-        teamA.setId(aTeamId);
-        teamB.setId(bTeamId);
-
-        game.setTeamA(teamA);
-        game.setTeamB(teamB);
         game.setEvent(event);
-        event.setEventStatus(true);
-        event.setLocation(loc);
         return eventService.save(event);
     }
 
@@ -87,4 +121,6 @@ public class EventController {
         eventService.save(event);
         return event;
     }
+
+
 }

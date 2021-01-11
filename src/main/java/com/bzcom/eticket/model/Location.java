@@ -25,43 +25,28 @@ public class Location {
     @Column(name = "location_info")
     private String info;
 
-
     @Column(name = "address")
     private String address;
-
 
     @Column(name = "latitude")
     private String latitude;
 
-
     @Column(name = "longitude")
     private String longitude;
 
-
     @Column(name = "img")
     private String img;
-
 
     @Column(name = "map")
     private String map;
 
     @JsonManagedReference(value = "area-location")
     @ToString.Exclude
-    @OneToMany(mappedBy = "location")
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<Area> areas;
-
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JoinTable(name = "location_league",
-            joinColumns = @JoinColumn(name = "location_id"),
-            inverseJoinColumns = @JoinColumn(name = "league_id")
-    )
-    private List<League> leagues;
 
     @JsonManagedReference(value = "location-event")
     @ToString.Exclude
-    @OneToMany(mappedBy = "location")
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<Event> events;
 }

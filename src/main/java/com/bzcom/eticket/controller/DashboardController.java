@@ -1,7 +1,7 @@
 package com.bzcom.eticket.controller;
 
 import com.bzcom.eticket.dto.AreaCountTicketDTO;
-import com.bzcom.eticket.dto.TicketDTO;
+import com.bzcom.eticket.dto.StatisticDTO;
 import com.bzcom.eticket.model.Event;
 import com.bzcom.eticket.service.AreaService;
 import com.bzcom.eticket.service.EventService;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping({"/statistics"})
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("*")
 public class DashboardController {
 
     @Autowired
@@ -23,35 +23,35 @@ public class DashboardController {
     private AreaService areaService;
 
     @GetMapping
-    public List<TicketDTO> ticketDtoList () {
+    public List<StatisticDTO> ticketDtoList () {
         List<Event> eventList = eventService.findAll();
-        List<TicketDTO> dtos = new ArrayList<>();
+        List<StatisticDTO> dtos = new ArrayList<>();
         for (int i = 0; i < eventList.size(); i++) {
-            TicketDTO ticketDto = new TicketDTO();
-            ticketDto.setEventId(eventList.get(i).getId());
-            ticketDto.setTeamB(eventList.get(i).getGame().getTeamB().getName());
+            StatisticDTO statisticDTO = new StatisticDTO();
+            statisticDTO.setEventId(eventList.get(i).getId());
+            statisticDTO.setTeamB(eventList.get(i).getGame().getTeamB().getName());
 
-            List<AreaCountTicketDTO> areaCountTicketDTOList = areaService.areaCountTicket(eventList.get(i).getId());
+            List<AreaCountTicketDTO> areaCountTicketDTOList = areaService.areaCountRemainTicket(eventList.get(i).getId());
             for (AreaCountTicketDTO areaCountTicketDTO : areaCountTicketDTOList){
                 switch (areaCountTicketDTO.getAreaId()){
                     case 1:
-                        ticketDto.setTotalTicketZoneA((int) areaCountTicketDTO.getTotalTicket());
+                        statisticDTO.setTotalTicketZoneA((int) areaCountTicketDTO.getTotalTicket());
                         break;
                     case 2:
-                        ticketDto.setTotalTicketZoneB((int) areaCountTicketDTO.getTotalTicket());
+                        statisticDTO.setTotalTicketZoneB((int) areaCountTicketDTO.getTotalTicket());
                         break;
                     case 3:
-                        ticketDto.setTotalTicketZoneC((int) areaCountTicketDTO.getTotalTicket());
+                        statisticDTO.setTotalTicketZoneC((int) areaCountTicketDTO.getTotalTicket());
                         break;
                     case 4:
-                        ticketDto.setTotalTicketZoneD((int) areaCountTicketDTO.getTotalTicket());
+                        statisticDTO.setTotalTicketZoneD((int) areaCountTicketDTO.getTotalTicket());
                         break;
                     default:
                         break;
                 }
             }
 
-            dtos.add(ticketDto);
+            dtos.add(statisticDTO);
         }
         return dtos;
     }

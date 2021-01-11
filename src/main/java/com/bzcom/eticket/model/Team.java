@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.security.access.method.P;
 
 import javax.persistence.*;
 import java.util.List;
@@ -40,4 +41,8 @@ public class Team {
     @OneToMany(mappedBy = "teamB")
     private List<Game> listGameB;
 
+    @JsonManagedReference(value = "product-team")
+    @ToString.Exclude
+    @OneToMany(mappedBy = "team")
+    private List<Product> products;
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -38,6 +37,11 @@ public class Ticket {
     @JoinColumn(name = "seat_id")
     private Seat seat;
 
+    @JsonBackReference(value = "ticket-user")
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(name = "ticket_serial")
     private String ticketSerial;
 
@@ -55,32 +59,17 @@ public class Ticket {
     @Column(name = "booking_code")
     private String bookingCode;
 
-    @Column(name = "qr_code")
-    private String qrCode;
-
     @Column(name = "ticket_status")
     private boolean ticketStatus;
 
-    @Transient
-    private int eventId;
+    @Column(name = "ticket_type")
+    private int type;
 
-    @Transient
-    private int totalTicket;
+    @Column(name = "booking_status")
+    private int bookingStatus;
 
-    @Transient
-    private int userId;
-
-    public int getEventId() {
-        if (getEvent() == null){
-            return eventId;
-        } else {
-            return getEvent().getId();
-        }
-    }
-
-    public void setEventId(int eventId) {
-        this.eventId = eventId;
-    }
+    @Version
+    private int version;
 
     @PrePersist
     public void setBookingDate() {

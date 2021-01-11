@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping({"/gates"})
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("*")
 public class GateController {
     @Autowired
     private GateService gateService;

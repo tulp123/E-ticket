@@ -1,5 +1,7 @@
 package com.bzcom.eticket.service;
 
+import com.bzcom.eticket.dto.BookingTicketDTO;
+import com.bzcom.eticket.model.AreaPrice;
 import com.bzcom.eticket.model.Event;
 import com.bzcom.eticket.model.Ticket;
 
@@ -11,14 +13,23 @@ public interface TicketService {
 
     Ticket findById(int id);
 
+    List<Ticket> findAllByIds(List<Integer> ids);
+
     Ticket save(Ticket ticket);
 
-    List<Ticket> saveAll(Ticket ticket);
+    List<Ticket> saveAll(BookingTicketDTO bookingTicketDTO);
 
-    Ticket findByBookingCode(String bookingCode, Event event);
+    List<Ticket> createTicket(Event event, AreaPrice areaPrice, String serial);
 
-    Ticket findByTicketSerial(String ticketSerial, Event event);
+    List<Ticket> findByBookingCode(String bookingCode, Event event);
+
+    Ticket findByTicketSerial(String ticketSerial);
 
     String getMaxSerial(int eventId);
 
+    List<Ticket> findTicketByBookingCodeAndUser_EmailAndUser_Phone(String bookingCode , String email ,String phoneNumber);
+
+    List<Ticket> getListTicketAvailable(int eventId, int areaId, int numberTicket);
+
+    void updateBookingStatus(int bookingStatus, List<Ticket> tickets);
 }

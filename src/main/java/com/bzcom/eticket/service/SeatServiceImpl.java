@@ -27,4 +27,14 @@ public class SeatServiceImpl implements SeatService {
     public Seat save(Seat seat) {
         return seatDao.save(seat);
     }
+
+    @Override
+    public Integer getSeatEmptyOfArea(int areaId, int eventId) {
+        return seatDao.getSeatEmptyOfArea(areaId, eventId);
+    }
+
+    @Override
+    public Integer getSeatIdMin(int areaId) {
+        return seatDao.getSeatIdMin(areaId);
+    }
 }

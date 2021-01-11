@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping({"/teams"})
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("*")
 public class TeamController {
 
     @Autowired

@@ -43,4 +43,9 @@ public class UserServiceImpl implements UserService{
         return userDao.findUserByPhoneNumber(phoneNum);
     }
 
+    @Override
+    public List<User> findUserByOrganizationId(int organizationId) {
+        return userDao.findUserByOrganizationId(organizationId);
+    }
+
 }

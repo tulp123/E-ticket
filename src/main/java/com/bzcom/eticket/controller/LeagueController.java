@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping({"/leagues"})
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("*")
 public class LeagueController {
     @Autowired
     private LeagueService leagueService;

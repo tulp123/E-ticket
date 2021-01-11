@@ -21,12 +21,15 @@ public class Role {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "role_name")
-    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "name")
+    private ERole name;
 
-    @JsonManagedReference(value = "role-user")
-    @ToString.Exclude
-    @OneToMany(mappedBy = "role")
-    private List<Member> members;
-
+//    @JsonManagedReference(value = "role-member")
+//    @ToString.Exclude
+//    @OneToMany(mappedBy = "role")
+//    private List<Member> members;
+    public Role(ERole name){
+        this.name = name;
+    }
 }

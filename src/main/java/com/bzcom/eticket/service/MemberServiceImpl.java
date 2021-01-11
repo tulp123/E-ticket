@@ -48,4 +48,14 @@ public class MemberServiceImpl implements MemberService {
     public List<Member> findAllByCreatedDateDesc() {
         return memberDao.findAllByCreatedDateDesc();
     }
+
+    @Override
+    public List<Member> findAllByConditions(String searchKey) {
+        return memberDao.findAllByConditions(searchKey);
+    }
+
+    @Override
+    public Member findMemberByImeiMember(Long imei) {
+        return memberDao.findMemberByImeiMember(imei);
+    }
 }

@@ -37,4 +37,9 @@ public class EventServiceImpl implements EventService {
     public Event save(Event event) {
         return eventDao.save(event);
     }
+
+    @Override
+    public List<Event> findEventsByTeamId(int id) {
+        return eventDao.findEventsByTeamId(id);
+    }
 }

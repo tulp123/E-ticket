@@ -11,4 +11,8 @@ public interface SeatDao {
     Seat findById(int id);
 
     Seat save(Seat seat);
+
+    Integer getSeatEmptyOfArea(int areaId, int eventId);
+
+    Integer getSeatIdMin(int areaId);
 }

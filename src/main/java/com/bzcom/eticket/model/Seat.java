@@ -24,7 +24,7 @@ public class Seat {
 
     @JsonManagedReference(value = "ticket-seat")
     @ToString.Exclude
-    @OneToMany(mappedBy = "seat")
+    @OneToMany(mappedBy = "seat", fetch = FetchType.LAZY)
     private List<Ticket> tickets;
 
     @ManyToOne
@@ -38,9 +38,11 @@ public class Seat {
     @Column(name = "seat_column")
     private String seatColumn;
 
-    @Column(name = "seat_price")
-    private long price;
-
     @Column(name = "status")
     private boolean seatStatus;
+
+    public Seat(int id) {
+        super();
+        this.id = id;
+    }
 }

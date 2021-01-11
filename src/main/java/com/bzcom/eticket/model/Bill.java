@@ -2,14 +2,14 @@ package com.bzcom.eticket.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "bill")
@@ -45,6 +45,13 @@ public class Bill {
 
     @Column(name = "tax_code")
     private String taxCode;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "bill_product",
+            joinColumns = @JoinColumn(name = "bill_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id")
+    )
+    private Set<Product> products;
 
     @PrePersist
     public void setBookingDate() {

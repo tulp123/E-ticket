@@ -1,8 +1,11 @@
 package com.bzcom.eticket.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -23,9 +26,22 @@ public class League {
     @Column(name = "league_info")
     private String leagueInfo;
 
-    @ManyToMany(mappedBy = "leagues", fetch = FetchType.LAZY)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<Location> locations;
+    @Column(name = "round")
+    private int leagueRound;
 
+    @Column(name = "start_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date startDate;
+
+    @Column(name = "end_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date endDate;
+
+    @Column(name = "status")
+    private int status;
+
+    @JsonManagedReference(value = "league-game")
+    @ToString.Exclude
+    @OneToMany(mappedBy = "league")
+    private List<Game> games;
 }

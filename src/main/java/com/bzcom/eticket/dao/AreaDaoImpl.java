@@ -43,10 +43,10 @@ public class AreaDaoImpl implements AreaDao {
     }
 
     @Override
-    public List<AreaCountTicketDTO> areaCountTicket(int eventId) {
+    public List<AreaCountTicketDTO> areaCountRemainTicket(int eventId) {
         TypedQuery<AreaCountTicketDTO> query = entityManager.createQuery("SELECT NEW com.bzcom.eticket.dto.AreaCountTicketDTO(a.id, count (distinct t.id)) " +
                 "FROM Area a join Seat s on s.area.id = a.id join Ticket t on t.seat.id = s.id " +
-                "WHERE t.event.id = ?1 group by a.id", AreaCountTicketDTO.class);
+                "WHERE t.event.id = ?1 and t.bookingStatus in (0, 3) group by a.id", AreaCountTicketDTO.class);
         query.setParameter(1, eventId);
 
         List<AreaCountTicketDTO> results = query.getResultList();

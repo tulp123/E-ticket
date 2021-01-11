@@ -16,6 +16,6 @@ public interface AreaDao {
 
     List<Area> findAllByLocation(Location location);
 
-    List<AreaCountTicketDTO> areaCountTicket(int eventId);
+    List<AreaCountTicketDTO> areaCountRemainTicket(int eventId);
 
 }

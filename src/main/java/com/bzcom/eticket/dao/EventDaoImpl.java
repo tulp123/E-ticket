@@ -21,21 +21,21 @@ public class EventDaoImpl implements EventDao {
 
     @Override
     public List<Event> findAll() {
-        Query query = entityManager.createQuery("select event from Event as event where event.eventStatus is true");
+        Query query = entityManager.createQuery("select event from Event as event where event.eventStatus = false");
         List<Event> results = query.getResultList();
         return results;
     }
 
     @Override
     public List<Event> findAllByMatchTimeAsc() {
-        Query query = entityManager.createQuery("select event from Event as event where event.eventStatus is true order by event.game.matchTime asc");
+        Query query = entityManager.createQuery("select event from Event as event where event.eventStatus = false order by event.game.matchTime asc");
         List<Event> results = query.getResultList();
         return results;
     }
 
     @Override
     public List<Event> findAllByMatchTimeDesc() {
-        Query query = entityManager.createQuery("select event from Event as event where event.eventStatus is true order by event.game.matchTime desc");
+        Query query = entityManager.createQuery("select event from Event as event where event.eventStatus = false order by event.game.matchTime desc");
         List<Event> results = query.getResultList();
         return results;
     }
@@ -49,4 +49,14 @@ public class EventDaoImpl implements EventDao {
     public Event save(Event event) {
         return eventRepository.save(event);
     }
+
+    @Override
+    public List<Event> findEventsByTeamId(int id) {
+        Query query = entityManager.createNativeQuery("select * from event where id in " +
+                "(select id from game where game.team_a_id = ?1)", Event.class)
+                .setParameter(1, id);
+        List<Event> results = query.getResultList();
+        return results;
+    }
+
 }

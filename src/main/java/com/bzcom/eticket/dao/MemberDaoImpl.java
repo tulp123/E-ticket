@@ -8,6 +8,12 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -58,5 +64,35 @@ public class MemberDaoImpl implements MemberDao{
         Query query = entityManager.createQuery("select m from Member as m order by m.createdDate desc");
         List<Member> results = query.getResultList();
         return results;
+    }
+
+    @Override
+    public List<Member> findAllByConditions(String searchKey) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Member> query = cb.createQuery(Member.class);
+        Root<Member> root = query.from(Member.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (!searchKey.isEmpty()) {
+            predicates.add(cb.or(
+                    cb.like(root.get("username"), "%" + searchKey + "%"),
+                    cb.like(root.get("user").get("fullName"), "%" + searchKey + "%"),
+                    cb.like(root.get("user").get("email"), "%" + searchKey + "%"),
+                    cb.like(root.get("user").get("phoneNumber"), "%" + searchKey + "%")
+                    )
+            );
+        }
+        query.where(predicates.toArray(new Predicate[]{}));
+
+        TypedQuery<Member> typedQuery = entityManager.createQuery(query);
+        List<Member> results = typedQuery.getResultList();
+
+        return results;
+    }
+
+    @Override
+    public Member findMemberByImeiMember(Long imei) {
+        return memberRepository.findMemberByImeiMember(imei);
     }
 }

@@ -1,5 +1,6 @@
 package com.bzcom.eticket.dao;
 
+import com.bzcom.eticket.model.Area;
 import com.bzcom.eticket.model.Gate;
 import com.bzcom.eticket.repository.GateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,10 @@ public class GateDaoImpl implements GateDao {
     @Override
     public Gate save(Gate gate) {
         return gateRepository.save(gate);
+    }
+
+    @Override
+    public List<Gate> findAllByArea(Area area) {
+        return gateRepository.findAllByArea(area);
     }
 }

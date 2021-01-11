@@ -36,7 +36,7 @@ public class AreaServiceImpl implements AreaService {
     }
 
     @Override
-    public List<AreaCountTicketDTO> areaCountTicket(int eventId) {
-        return areaDao.areaCountTicket(eventId);
+    public List<AreaCountTicketDTO> areaCountRemainTicket(int eventId) {
+        return areaDao.areaCountRemainTicket(eventId);
     }
 }

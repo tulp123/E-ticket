@@ -18,4 +18,8 @@ public interface MemberService {
     List<Member> findAllByCreatedDateAsc();
 
     List<Member> findAllByCreatedDateDesc();
+
+    List<Member> findAllByConditions(String searchKey);
+
+    Member findMemberByImeiMember(Long imei);
 }

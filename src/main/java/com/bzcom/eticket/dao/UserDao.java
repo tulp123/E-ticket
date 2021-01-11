@@ -17,4 +17,6 @@ public interface UserDao {
 
     User findUserByPhoneNumber(String phoneNum);
 
+    List<User> findUserByOrganizationId(int organizationId);
+
 }

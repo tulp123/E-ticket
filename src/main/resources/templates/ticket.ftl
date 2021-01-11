@@ -44,7 +44,7 @@
                                     </div>
 
                                     <div style="font-size: 24px; color: #000000;">
-                                        <br>${ticket.event.locationName}
+                                        <br>${ticket.event.location.name}
                                         <br>${ticket.event.game.matchTime?datetime?string("HH:mm:ss EEEE, dd/MM/yyyy")}
                                         <br>${ticket.seat.area.name}
                                     </div> <br>

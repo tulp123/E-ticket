@@ -18,4 +18,6 @@ public interface UserService {
 
     User findUserByPhoneNumber(String phoneNum);
 
+    List<User> findUserByOrganizationId(int organizationId);
+
 }

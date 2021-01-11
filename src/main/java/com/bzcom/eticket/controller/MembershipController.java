@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping({"/memberships"})
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("*")
 public class MembershipController {
 
     @Autowired

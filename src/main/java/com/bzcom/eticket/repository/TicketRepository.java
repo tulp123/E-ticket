@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
-    Ticket findAllByBookingCodeAndEvent(String bookingCode, Event event);
+    List<Ticket> findAllByBookingCodeAndEvent(String bookingCode, Event event);
 
-    Ticket findAllByTicketSerialAndEvent(String ticketSerial, Event event);
+    Ticket findAllByTicketSerial(String ticketSerial);
 }
